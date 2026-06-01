@@ -24,5 +24,8 @@ npm-debug.log*
 # the vault holds YOUR personal notes — never commit it
 /vault/
 
+# API keys for API-mode agents — NEVER commit
+/agentic-os.secrets.json
+
 # the source pack zip
 *.zip

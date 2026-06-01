@@ -54,11 +54,17 @@ export default function AgentCard({ agent, status = "offline", latency, index = 
 
       <div className="relative mt-4 flex items-center justify-between">
         <span className="text-[11px] text-slate-500">
-          {status === "live"
-            ? `${latency != null ? latency + "ms" : "ready"} · ${agent.command}`
-            : agent.enabled
-              ? `CLI "${agent.command}" not found`
-              : "Not connected"}
+          {agent.mode === "api"
+            ? status === "live"
+              ? `API · ${agent.model?.split("/").pop() || "ready"}`
+              : agent.enabled
+                ? "API key needed — add it in Settings"
+                : "Not connected"
+            : status === "live"
+              ? `${latency != null ? latency + "ms" : "ready"} · ${agent.command}`
+              : agent.enabled
+                ? `CLI "${agent.command}" not found`
+                : "Not connected"}
         </span>
         <Link
           href={`/agents/${agent.id}`}

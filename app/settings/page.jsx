@@ -2,17 +2,34 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Settings, Save, Check, Bot } from "lucide-react";
+import { Settings, Save, Check, Bot, KeyRound } from "lucide-react";
 
 const ACCENT_OPTIONS = ["cyan", "violet", "magenta", "emerald", "amber", "blue", "rose"];
 
 export default function SettingsPage() {
   const [config, setConfig] = useState(null);
   const [saved, setSaved] = useState(false);
+  const [secretsPresent, setSecretsPresent] = useState({});
+  const [secretInputs, setSecretInputs] = useState({});
+  const [savedKey, setSavedKey] = useState(null);
 
   useEffect(() => {
     fetch("/api/config").then((r) => r.json()).then(setConfig);
+    fetch("/api/secret").then((r) => r.json()).then((d) => setSecretsPresent(d.present || {}));
   }, []);
+
+  const saveKey = async (secretName) => {
+    const value = secretInputs[secretName] || "";
+    await fetch("/api/secret", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: secretName, value }),
+    });
+    setSecretsPresent((p) => ({ ...p, [secretName]: Boolean(value) }));
+    setSecretInputs((s) => ({ ...s, [secretName]: "" }));
+    setSavedKey(secretName);
+    setTimeout(() => setSavedKey(null), 1800);
+  };
 
   if (!config) {
     return <div className="px-10 py-10 text-slate-500">Loading…</div>;
@@ -120,19 +137,28 @@ export default function SettingsPage() {
                   Enabled
                 </label>
               </div>
-              <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                <div>
-                  <label className="mb-1 block text-[11px] text-slate-500">CLI command</label>
-                  <input
-                    className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-sm text-slate-200 focus:outline-none"
-                    value={a.command}
-                    onChange={(e) => setAgent(a.id, { command: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <label className="mb-1 block text-[11px] text-slate-500">Accent color</label>
+              {/* Mode toggle */}
+              <div className="mt-3 flex gap-2 text-xs">
+                {["cli", "api"].map((mode) => {
+                  const current = (a.mode || "cli") === mode;
+                  return (
+                    <button
+                      key={mode}
+                      onClick={() => setAgent(a.id, { mode: mode === "cli" ? "cli" : "api" })}
+                      className={`rounded-lg border px-3 py-1 uppercase tracking-wide ${
+                        current
+                          ? "border-glow-cyan/40 bg-glow-cyan/10 text-glow-cyan"
+                          : "border-white/10 text-slate-400 hover:text-white"
+                      }`}
+                    >
+                      {mode === "cli" ? "CLI" : "API"}
+                    </button>
+                  );
+                })}
+                <div className="ml-auto flex items-center gap-2">
+                  <label className="text-[11px] text-slate-500">Accent</label>
                   <select
-                    className="w-full rounded-lg border border-white/10 bg-ink-800 px-3 py-1.5 text-sm text-slate-200 focus:outline-none"
+                    className="rounded-lg border border-white/10 bg-ink-800 px-2 py-1 text-xs text-slate-200 focus:outline-none"
                     value={a.accent}
                     onChange={(e) => setAgent(a.id, { accent: e.target.value })}
                   >
@@ -142,12 +168,82 @@ export default function SettingsPage() {
                   </select>
                 </div>
               </div>
+
+              {(a.mode || "cli") === "cli" ? (
+                <div className="mt-3">
+                  <label className="mb-1 block text-[11px] text-slate-500">CLI command (prompt piped over stdin)</label>
+                  <input
+                    className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-sm text-slate-200 focus:outline-none"
+                    value={a.command || ""}
+                    onChange={(e) => setAgent(a.id, { command: e.target.value })}
+                    placeholder="e.g. claude"
+                  />
+                </div>
+              ) : (
+                <div className="mt-3 space-y-3">
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div>
+                      <label className="mb-1 block text-[11px] text-slate-500">API endpoint</label>
+                      <input
+                        className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-sm text-slate-200 focus:outline-none"
+                        value={a.endpoint || ""}
+                        onChange={(e) => setAgent(a.id, { endpoint: e.target.value })}
+                        placeholder="https://openrouter.ai/api/v1/chat/completions"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-[11px] text-slate-500">Model</label>
+                      <input
+                        className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-sm text-slate-200 focus:outline-none"
+                        value={a.model || ""}
+                        onChange={(e) => setAgent(a.id, { model: e.target.value })}
+                        placeholder="nousresearch/hermes-3-llama-3.1-70b"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="mb-1 flex items-center gap-1.5 text-[11px] text-slate-500">
+                      <KeyRound size={12} />
+                      API key
+                      <span className="ml-1 rounded px-1.5 text-[10px] uppercase tracking-wide"
+                        style={{
+                          background: secretsPresent[a.secret] ? "rgba(52,211,153,0.15)" : "rgba(148,163,184,0.1)",
+                          color: secretsPresent[a.secret] ? "#34d399" : "#94a3b8",
+                        }}>
+                        {secretsPresent[a.secret] ? "set" : "not set"}
+                      </span>
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="password"
+                        autoComplete="off"
+                        className="flex-1 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-sm text-slate-200 focus:outline-none"
+                        value={secretInputs[a.secret] || ""}
+                        onChange={(e) =>
+                          setSecretInputs((s) => ({ ...s, [a.secret]: e.target.value }))
+                        }
+                        placeholder={secretsPresent[a.secret] ? "•••••••• (enter to replace)" : "Paste your key…"}
+                      />
+                      <button
+                        onClick={() => saveKey(a.secret)}
+                        className="btn bg-glow-magenta/15 text-glow-magenta hover:brightness-125"
+                      >
+                        {savedKey === a.secret ? <Check size={15} /> : <KeyRound size={15} />}
+                        {savedKey === a.secret ? "Saved" : "Save key"}
+                      </button>
+                    </div>
+                    <p className="mt-1 text-[11px] text-slate-500">
+                      Stored locally in <code>agentic-os.secrets.json</code> (gitignored). Never committed or sent anywhere but your endpoint.
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>
         <p className="mt-3 text-xs text-slate-500">
-          The agent&apos;s prompt is piped to its CLI over stdin (e.g. <code>claude -p</code>). Enable an agent once
-          its CLI is installed and on your PATH.
+          <span className="text-slate-400">CLI mode</span> pipes the prompt to a local command over stdin (e.g. <code>claude -p</code>).{" "}
+          <span className="text-slate-400">API mode</span> calls any OpenAI-compatible endpoint (OpenRouter, Together, a local LM server…).
         </p>
       </motion.div>
     </div>

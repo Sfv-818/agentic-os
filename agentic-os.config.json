@@ -31,11 +31,13 @@
     {
       "id": "hermes",
       "name": "Hermes",
-      "tagline": "Nous Research agent. Tool calls, kanban, skills, plugins.",
-      "command": "hermes",
-      "args": [],
+      "tagline": "Nous Research agent. Hermes 3 via API — reasoning, research, tool calls.",
+      "mode": "api",
+      "endpoint": "https://openrouter.ai/api/v1/chat/completions",
+      "model": "nousresearch/hermes-3-llama-3.1-70b",
+      "secret": "openrouter",
       "accent": "magenta",
-      "enabled": false,
+      "enabled": true,
       "layer": "Research"
     }
   ],

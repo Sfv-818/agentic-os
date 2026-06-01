@@ -1,10 +1,25 @@
 import { NextResponse } from "next/server";
-import { readConfig, findAgent } from "@/lib/config";
-import { runAgent } from "@/lib/agents";
+import { readConfig, findAgent, secretForAgent } from "@/lib/config";
+import { runAgent, runApiAgent } from "@/lib/agents";
 import { appendVaultFile, today, nowStamp } from "@/lib/vault";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 140;
+
+/** Build an OpenAI-style messages array for API-mode agents. */
+function buildMessages(agentName, history, message) {
+  const messages = [
+    {
+      role: "system",
+      content: `You are ${agentName}, an AI agent inside the operator's personal Agentic OS "Mission Control" dashboard. Respond helpfully and concisely in plain text/markdown.`,
+    },
+  ];
+  for (const m of history || []) {
+    messages.push({ role: m.role === "user" ? "user" : "assistant", content: m.content });
+  }
+  messages.push({ role: "user", content: message });
+  return messages;
+}
 
 /** Build a single prompt string from the conversation transcript. */
 function buildPrompt(agentName, history, message) {
@@ -38,21 +53,32 @@ export async function POST(request) {
   }
   if (!agent.enabled) {
     return NextResponse.json(
-      {
-        error: `${agent.name} is not connected yet. Install its CLI and enable it in Settings.`,
-      },
+      { error: `${agent.name} is not connected yet. Enable it in Settings.` },
       { status: 503 }
     );
   }
 
-  const prompt = buildPrompt(agent.name, history || [], message);
-
   let reply;
   try {
-    reply = await runAgent(agent, prompt);
+    if (agent.mode === "api") {
+      const key = await secretForAgent(agent);
+      if (!key) {
+        return NextResponse.json(
+          {
+            error: `${agent.name} needs an API key. Add your ${agent.secret || "API"} key in Settings.`,
+          },
+          { status: 503 }
+        );
+      }
+      const messages = buildMessages(agent.name, history || [], message);
+      reply = await runApiAgent(agent, messages, key);
+    } else {
+      const prompt = buildPrompt(agent.name, history || [], message);
+      reply = await runAgent(agent, prompt);
+    }
   } catch (err) {
     return NextResponse.json(
-      { error: `${agent.name} bridge error: ${err.message}` },
+      { error: `${agent.name} error: ${err.message}` },
       { status: 502 }
     );
   }

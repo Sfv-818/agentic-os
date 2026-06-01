@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { readConfig } from "@/lib/config";
+import { readConfig, secretForAgent } from "@/lib/config";
 import { probeCommand } from "@/lib/agents";
 
 export const dynamic = "force-dynamic";
@@ -12,6 +12,16 @@ export async function GET() {
     agents.map(async (a) => {
       if (!a.enabled) {
         return { id: a.id, status: "offline", latency: null, found: false };
+      }
+      // API-mode agents are "live" when their key is present, "degraded" otherwise.
+      if (a.mode === "api") {
+        const key = await secretForAgent(a);
+        return {
+          id: a.id,
+          status: key ? "live" : "degraded",
+          latency: null,
+          found: !!key,
+        };
       }
       const probe = await probeCommand(a.command);
       return {
