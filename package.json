@@ -4,9 +4,9 @@
   "private": true,
   "description": "Agentic OS — your personal AI Mission Control. Local-first dashboard for Claude and your agents.",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3939",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 3939",
     "lint": "next lint"
   },
   "dependencies": {
