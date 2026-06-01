@@ -1,0 +1,43 @@
+{
+  "operator": {
+    "name": "Operator",
+    "title": "Mission Control"
+  },
+  "vault": {
+    "path": "./vault",
+    "folder": "Agentic OS"
+  },
+  "agents": [
+    {
+      "id": "claude",
+      "name": "Claude",
+      "tagline": "Intelligence layer. Streaming reasoning, code, and tool use.",
+      "command": "claude",
+      "args": ["-p"],
+      "accent": "cyan",
+      "enabled": true,
+      "layer": "Intelligence"
+    },
+    {
+      "id": "openclaw",
+      "name": "OpenClaw",
+      "tagline": "Local agent gateway. Routes tasks and manages sessions.",
+      "command": "openclaw",
+      "args": [],
+      "accent": "violet",
+      "enabled": false,
+      "layer": "Execution"
+    },
+    {
+      "id": "hermes",
+      "name": "Hermes",
+      "tagline": "Nous Research agent. Tool calls, kanban, skills, plugins.",
+      "command": "hermes",
+      "args": [],
+      "accent": "magenta",
+      "enabled": false,
+      "layer": "Research"
+    }
+  ],
+  "goalCategories": ["Business", "Health", "Learning", "Personal"]
+}
