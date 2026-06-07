@@ -39,6 +39,67 @@
       "accent": "magenta",
       "enabled": true,
       "layer": "Research"
+    },
+    {
+      "id": "gemini",
+      "name": "Gemini",
+      "tagline": "Google Gemini CLI — multimodal reasoning and long context.",
+      "command": "gemini",
+      "args": ["-p"],
+      "accent": "blue",
+      "enabled": false,
+      "layer": "Intelligence"
+    },
+    {
+      "id": "antigravity",
+      "name": "Antigravity",
+      "tagline": "Google Antigravity — agentic IDE and build automation.",
+      "command": "antigravity",
+      "args": [],
+      "accent": "rose",
+      "enabled": false,
+      "layer": "Build"
+    },
+    {
+      "id": "codex",
+      "name": "Codex",
+      "tagline": "OpenAI Codex CLI — code generation and refactors.",
+      "command": "codex",
+      "args": ["exec"],
+      "accent": "emerald",
+      "enabled": false,
+      "layer": "Engineering"
+    },
+    {
+      "id": "free-claude-code",
+      "name": "Free Claude Code",
+      "tagline": "A second Claude Code line for parallel tasks.",
+      "command": "claude",
+      "args": ["-p"],
+      "accent": "cyan",
+      "enabled": false,
+      "layer": "Intelligence"
+    },
+    {
+      "id": "openjarvis",
+      "name": "OpenJarvis",
+      "tagline": "Voice-first assistant — speak to launch apps and run tasks.",
+      "command": "openjarvis",
+      "args": [],
+      "accent": "amber",
+      "enabled": false,
+      "layer": "Voice"
+    },
+    {
+      "id": "gemma",
+      "name": "Gemma 4",
+      "tagline": "Local Gemma model via Ollama — private, offline answers.",
+      "mode": "api",
+      "endpoint": "http://localhost:11434/v1/chat/completions",
+      "model": "gemma2",
+      "accent": "violet",
+      "enabled": false,
+      "layer": "Local"
     }
   ],
   "goalCategories": ["Business", "Health", "Learning", "Personal"]
