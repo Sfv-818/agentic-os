@@ -31,10 +31,10 @@
     {
       "id": "hermes",
       "name": "Hermes",
-      "tagline": "Local Hermes proxy → Nous Portal (free models). OpenAI-compatible.",
+      "tagline": "Your real local Hermes agent — full tools, memory, skills, kanban.",
       "mode": "api",
-      "endpoint": "http://localhost:8645/v1/chat/completions",
-      "model": "stepfun/step-3.7-flash:free",
+      "endpoint": "http://localhost:8642/v1/chat/completions",
+      "model": "hermes-agent",
       "secret": "hermes_local",
       "accent": "magenta",
       "enabled": true,
