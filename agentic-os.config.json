@@ -31,11 +31,11 @@
     {
       "id": "hermes",
       "name": "Hermes",
-      "tagline": "Nous Research agent. Hermes 3 via API — reasoning, research, tool calls.",
+      "tagline": "Your real local Hermes agent (WSL) — tools, skills, kanban, memory.",
       "mode": "api",
-      "endpoint": "https://openrouter.ai/api/v1/chat/completions",
-      "model": "nousresearch/hermes-3-llama-3.1-70b",
-      "secret": "openrouter",
+      "endpoint": "http://localhost:8642/v1/chat/completions",
+      "model": "hermes-agent",
+      "secret": "hermes_local",
       "accent": "magenta",
       "enabled": true,
       "layer": "Research"
